@@ -58,7 +58,7 @@ func main() {
 		return
 	}
 
-	fmt.Print("DONE")
+	fmt.Println("DONE")
 }
 
 type execFn[T any] func(ctx context.Context, cfg T) error
