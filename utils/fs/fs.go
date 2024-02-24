@@ -93,7 +93,7 @@ func EnsureDirExists(dirPath string) (created bool, err error) {
 			return false, errs.Errorf("os.Stat failed: %w", err)
 		}
 
-		err = os.MkdirAll(dirPath, 0644)
+		err = os.MkdirAll(dirPath, 0744)
 		if err != nil {
 			return false, errs.Errorf("os.Mkdir failed: %w", err)
 		}
