@@ -1,0 +1,28 @@
+{
+    "source": "./parsed/result",
+    "target": {
+        "folder": {
+            "path": "./filtered",
+            "cleanupIfExists": true,
+            "withoutCreationTime": true
+        },
+        "withStat": true,
+        "toOneFolder": true
+    },
+    "filter": {
+        "$or": [
+            {
+                "$and":[
+                    {"function": {"$in": ["power", "poweroff", "on_off"]}},
+                    {"brand": {"$true": {}}},
+                    {"$not": {"device": "projectors"}},
+                    {"protocol": "nec"},
+                    {"frequency": "38000"}
+                ]
+            },
+            {
+                "brand": {"$eq": "samsung"}
+            }
+        ]
+    }
+}

@@ -1,0 +1,29 @@
+{
+  "target" : {
+    "folder": {
+      "path": "./parsed",
+      "cleanupIfExists": true,
+      "withoutCreationTime": true
+    },
+    "keepSourceField": false,
+    "withStat": true
+  },
+
+  "sources": {
+    "visio": {
+      "skip": false,
+      "type": "visio",
+      "path": "./data/visio"
+    },
+
+    "fz": {
+      "skip": false,
+      "type": "fz",
+      "path": "./data/fz",
+      "options": {
+        "ignoreAllUnsupportedProtocolError": true,
+        "ignoreSpecificUnsupportedProtocolError": ["rc5x", "rca", "sirc20"]
+      }
+    }
+  }
+}
