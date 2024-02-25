@@ -15,7 +15,11 @@ func NewIrpRc5(protocol string) Irp {
 }
 
 func NewIrpRc5x(protocol string) Irp {
-	return NewIrpUnsupported(protocol, FrequencyRc5x)
+	return &irpImpl{
+		protocol:  protocol,
+		frequency: FrequencyRc5x,
+		decode:    DecodeRc5x,
+	}
 }
 
 func NewIrpRc6(protocol string) Irp {
@@ -27,12 +31,20 @@ func NewIrpRc6(protocol string) Irp {
 }
 
 func DecodeRc5(code SignalCode) (SignalData, error) {
+	return decodeRc5(code, 6)
+}
+
+func DecodeRc5x(code SignalCode) (SignalData, error) {
+	return decodeRc5(code, 7)
+}
+
+func decodeRc5(code SignalCode, commandBitsCount int) (SignalData, error) {
 	addressBits := GetBits8(code.Address[0], false)
 	commandBits := GetBits8(code.Command[0], false)
 
 	bits := make([]bool, 0, 16)
 	bits = append(bits, addressBits[3:]...)
-	bits = append(bits, commandBits[2:]...)
+	bits = append(bits, commandBits[8-commandBitsCount:]...)
 
 	data := SignalData{RC5_BIT, RC5_BIT, RC5_BIT + RC5_BIT, RC5_BIT} // 2 start 1-bits + toggle bit
 
