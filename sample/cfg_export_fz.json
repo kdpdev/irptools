@@ -1,0 +1,11 @@
+{
+  "source": "./filtered/result",
+  "target": {
+    "folder": {
+      "path": "./exported_fz",
+      "cleanupIfExists": true,
+      "withoutCreationTime": true
+    },
+    "toOneFolder": false
+  }
+}

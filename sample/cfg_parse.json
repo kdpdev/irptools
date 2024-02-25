@@ -12,7 +12,7 @@
 
   "sources": {
     "visio": {
-      "skip": false,
+      "skip": true,
       "type": "visio",
       "path": "./data/visio"
     },

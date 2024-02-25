@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"strings"
 
+	export_fz "irptools/tools/export/fz"
 	"irptools/tools/filter"
 	"irptools/tools/parse"
 	"irptools/tools/stat"
@@ -22,9 +23,10 @@ func main() {
 	const defaultCfg = "cfg_$cmd$.json"
 
 	cmds := map[string]func(ctx context.Context, cfg string) error{
-		"parse":  makeExecCmdFn(parse.Main, parse.LoadConfig),
-		"stat":   makeExecCmdFn(stat.Main, stat.LoadConfig),
-		"filter": makeExecCmdFn(filter.Main, filter.LoadConfig),
+		"parse":     makeExecCmdFn(parse.Main, parse.LoadConfig),
+		"stat":      makeExecCmdFn(stat.Main, stat.LoadConfig),
+		"filter":    makeExecCmdFn(filter.Main, filter.LoadConfig),
+		"export_fz": makeExecCmdFn(export_fz.Main, export_fz.LoadConfig),
 	}
 
 	var cmdLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
