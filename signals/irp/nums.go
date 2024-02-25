@@ -5,12 +5,12 @@ import (
 	"strings"
 )
 
-func GetBits8(value uint8, lsb bool) [8]bool {
+func GetBits8(value uint8, lsbFirst bool) [8]bool {
 	const size = 8
 	result := [size]bool{}
 	for i := 0; i < size; i++ {
 		if value&uint8(0x01) == 1 {
-			if lsb {
+			if lsbFirst {
 				result[i] = true
 			} else {
 				result[size-1-i] = true
@@ -22,9 +22,9 @@ func GetBits8(value uint8, lsb bool) [8]bool {
 	return result
 }
 
-func GetBits16(value uint16, lsb bool) [16]bool {
+func GetBits16(value uint16, lsbFirst bool) [16]bool {
 	result := [16]bool{}
-	if lsb {
+	if lsbFirst {
 		source := GetBits8(uint8(value), true)
 		copy(result[:8], source[:])
 		source = GetBits8(uint8(value>>8), true)
@@ -38,9 +38,9 @@ func GetBits16(value uint16, lsb bool) [16]bool {
 	return result
 }
 
-func GetBits32(value uint32, lsb bool) [32]bool {
+func GetBits32(value uint32, lsbFirst bool) [32]bool {
 	result := [32]bool{}
-	if lsb {
+	if lsbFirst {
 		source := GetBits16(uint16(value), true)
 		copy(result[:16], source[:])
 		source = GetBits16(uint16(value>>16), true)

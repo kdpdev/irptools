@@ -23,7 +23,11 @@ func NewIrpSirc15(protocol string) Irp {
 }
 
 func NewIrpSirc20(protocol string) Irp {
-	return NewIrpUnsupported(protocol, FrequencySirc20)
+	return &irpImpl{
+		protocol:  protocol,
+		frequency: FrequencySirc20,
+		decode:    DecodeSirc20,
+	}
 }
 
 func DecodeSirc12(code SignalCode) (SignalData, error) {
@@ -48,6 +52,25 @@ func DecodeSirc15(code SignalCode) (SignalData, error) {
 
 	addressBits8 := GetBits8(code.Address[0], true)
 	addressBits := addressBits8[0:8]
+
+	data := NewSignalData()
+	data.Add(SIRC_PREAMBLE_MARK, SIRC_PREAMBLE_SPACE)
+	data.AddBits(commandBits, SIRC_BIT1_MARK, SIRC_BIT1_SPACE, SIRC_BIT0_MARK, SIRC_BIT0_SPACE)
+	data.AddBits(addressBits, SIRC_BIT1_MARK, SIRC_BIT1_SPACE, SIRC_BIT0_MARK, SIRC_BIT0_SPACE)
+	data.Pop() // last space is not needed
+
+	return data, nil
+}
+
+func DecodeSirc20(code SignalCode) (SignalData, error) {
+	commandBits8 := GetBits8(code.Command[0], true)
+	commandBits := commandBits8[0:7]
+
+	addressBits8_0 := GetBits8(code.Address[0], true)
+	addressBits8_1 := GetBits8(code.Address[1], true)
+	addressBits := make([]bool, 0, 13)
+	addressBits = append(addressBits, addressBits8_0[:]...)
+	addressBits = append(addressBits, addressBits8_1[0:5]...)
 
 	data := NewSignalData()
 	data.Add(SIRC_PREAMBLE_MARK, SIRC_PREAMBLE_SPACE)
