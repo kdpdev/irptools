@@ -90,7 +90,7 @@ func fieldsFromLinesBatch(lines LinesBatch) (FieldsMap, error) {
 			return "", "", errs.Wrap(NewBadLineError(line, fmt.Sprintf("line is without the '%s' separator", separator), nil))
 		}
 		key := strings.ToLower(strings.TrimSpace(line[0:separatorPos]))
-		value := strings.ToLower(strings.TrimSpace(line[separatorPos+1:]))
+		value := strings.TrimSpace(line[separatorPos+1:])
 		return key, value, nil
 	}
 

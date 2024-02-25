@@ -7,22 +7,22 @@
             "withoutCreationTime": true
         },
         "withStat": true,
-        "prettyJsonPrint": false,
+        "prettyJsonPrint": true,
         "toOneFolder": true
     },
     "filter": {
         "$or": [
             {
                 "$and":[
-                    {"function": {"$in": ["power", "poweroff", "on_off"]}},
+                    {"function": {"$in": ["POWER","Power", "On_off"]}},
                     {"brand": {"$true": {}}},
-                    {"$not": {"device": "projectors"}},
-                    {"protocol": "nec"},
+                    {"$not": {"device": "Projectors"}},
+                    {"protocol": "NEC"},
                     {"frequency": "38000"}
                 ]
             },
             {
-                "brand": {"$eq": "samsung"}
+                "brand": {"$eq": "SonyTV"}
             }
         ]
     }

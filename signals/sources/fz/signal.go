@@ -49,11 +49,15 @@ var signalDecoders = map[string]decodeSignalFn{
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type checkingIrp struct {
-	checker *ErrorChecker
-	origin  irp.Irp
+	checker  *ErrorChecker
+	origin   irp.Irp
+	protocol string
 }
 
 func (this checkingIrp) Protocol() string {
+	if this.protocol != "" {
+		return this.protocol
+	}
 	return this.origin.Protocol()
 }
 
@@ -81,12 +85,20 @@ type decoder struct {
 }
 
 func (this *decoder) getIrp(protocol string) (irp.Irp, error) {
-	originIrp, err := irp.GetIrp(protocol)
+	originIrp, err := irp.GetIrp(strings.ToLower(protocol))
 	if err == nil {
-		return checkingIrp{checker: this.checker, origin: originIrp}, nil
+		return checkingIrp{
+			checker:  this.checker,
+			origin:   originIrp,
+			protocol: protocol,
+		}, nil
 	}
 	if this.checker.IsExpectedError(err) {
-		return checkingIrp{checker: this.checker, origin: irp.NewIrpUnsupported(protocol, 0)}, nil
+		return checkingIrp{
+			checker:  this.checker,
+			origin:   irp.NewIrpUnsupported(protocol, 0),
+			protocol: protocol,
+		}, nil
 	}
 	return nil, errs.Wrap(err)
 }

@@ -3,6 +3,7 @@ package parse
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"irptools/signals/signal"
 	"irptools/signals/sources/fz"
@@ -148,22 +149,36 @@ func newSignalConsumersFactory(
 	targetCfg TargetConfig,
 	getConsumer signalutils.SignalsToFileConsumerSourceFn) (*signalutils.SignalsToFileConsumersFactory, error) {
 
-	var preprocessSignal func(signal signal.Signal) (signal.Signal, error)
+	var trs []signalutils.TransformSignalFn
 	if !targetCfg.KeepSourceField {
-		preprocessSignal = func(signal signal.Signal) (signal.Signal, error) {
+		trs = append(trs, func(signal signal.Signal) (signal.Signal, error) {
 			signal.Source = ""
 			return signal, nil
-		}
+		})
 	}
 
-	if preprocessSignal != nil {
+	if targetCfg.FieldsToLower {
+		toLower := func(str *string) {
+			*str = strings.ToLower(*str)
+		}
+		trs = append(trs, func(signal signal.Signal) (signal.Signal, error) {
+			toLower(&signal.Source)
+			toLower(&signal.Brand)
+			toLower(&signal.Device)
+			toLower(&signal.Function)
+			toLower(&signal.Protocol)
+			return signal, nil
+		})
+	}
+
+	if len(trs) != 0 {
 		prev := getConsumer
 		getConsumer = func(filePath string) (signalutils.ClosableSignalConsumer, error) {
 			encoder, err := prev(filePath)
 			if err != nil {
 				return nil, errs.Wrap(err)
 			}
-			return signalutils.NewPreprocessingSignalConsumer(encoder, preprocessSignal), nil
+			return signalutils.NewTransformingSignalConsumer(encoder, trs), nil
 		}
 	}
 

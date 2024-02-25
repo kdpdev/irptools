@@ -87,6 +87,7 @@ type TargetConfig struct {
 	WithStat        bool               `json:"withStat"`
 	PrettyJsonPrint bool               `json:"prettyJsonPrint"`
 	KeepSourceField bool               `json:"keepSourceField"`
+	FieldsToLower   bool               `json:"fieldsToLower"`
 }
 
 func (this TargetConfig) Validate() error {

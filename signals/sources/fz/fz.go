@@ -104,7 +104,7 @@ func brandFromFilePath(filePath string) string {
 	fileName := filepath.Base(filePath)
 	separatorPos := strings.IndexAny(fileName, "_-.")
 	if separatorPos > 0 {
-		return strings.ToLower(fileName[0:separatorPos])
+		return fileName[0:separatorPos]
 	}
 	return fileName
 }

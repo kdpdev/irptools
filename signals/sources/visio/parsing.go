@@ -75,11 +75,7 @@ func setSignalFunction(s *signal.Signal, value string) error {
 }
 
 func setStringField(field *string, value string) error {
-	if value == "" {
-		*field = "unknown"
-	} else {
-		*field = strings.TrimSpace(strings.ToLower(value))
-	}
+	*field = strings.TrimSpace(value)
 	return nil
 }
 
