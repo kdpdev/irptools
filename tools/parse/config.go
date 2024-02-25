@@ -84,8 +84,9 @@ func (this SourceConfig) Adjust() (SourceConfig, error) {
 
 type TargetConfig struct {
 	Folder          utils.TargetFolder `json:"folder"`
-	KeepSourceField bool               `json:"keepSourceField"`
 	WithStat        bool               `json:"withStat"`
+	PrettyJsonPrint bool               `json:"prettyJsonPrint"`
+	KeepSourceField bool               `json:"keepSourceField"`
 }
 
 func (this TargetConfig) Validate() error {

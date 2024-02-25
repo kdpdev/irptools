@@ -8,11 +8,14 @@ var supportedIrpCreators = map[string]func(protocol string) Irp{
 	"necext":    NewIrpNecExt,
 	"nec42":     NewIrpNec42,
 	"rc5":       NewIrpRc5,
+	"rc5x":      NewIrpRc5x,
 	"rc6":       NewIrpRc6,
+	"rca":       NewIrpRca,
 	"samsung32": NewIrpSamsung32,
 	"sirc":      NewIrpSirc12,
 	"sirc12":    NewIrpSirc12,
 	"sirc15":    NewIrpSirc15,
+	"sirc20":    NewIrpSirc20,
 }
 
 type Irp interface {

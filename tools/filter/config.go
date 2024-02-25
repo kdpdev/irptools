@@ -52,9 +52,10 @@ func (this Config) Adjust() (Config, error) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type TargetConfig struct {
-	Folder      utils.TargetFolder `json:"folder"`
-	WithStat    bool               `json:"withStat"`
-	ToOneFolder bool               `json:"toOneFolder"`
+	Folder          utils.TargetFolder `json:"folder"`
+	WithStat        bool               `json:"withStat"`
+	PrettyJsonPrint bool               `json:"prettyJsonPrint"`
+	ToOneFolder     bool               `json:"toOneFolder"`
 }
 
 func (this TargetConfig) Validate() error {

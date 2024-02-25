@@ -9,13 +9,14 @@ import (
 
 type Signal struct {
 	Id        string         `json:"id"`
-	Source    string         `json:"source,omitempty"`
+	Source    string         `json:"source"`
 	Brand     string         `json:"brand"`
 	Device    string         `json:"device"`
 	Function  string         `json:"function"`
 	Protocol  string         `json:"protocol"`
 	Frequency irp.Frequency  `json:"frequency"`
 	Data      irp.SignalData `json:"data"`
+	Code      irp.SignalCode `json:"code"`
 }
 
 func (this Signal) Format(s fmt.State, verb rune) {

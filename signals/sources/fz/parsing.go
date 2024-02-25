@@ -54,7 +54,11 @@ func ParseIrStream(
 		return nil
 	}
 
-	signals := fp.FlowFilterError(signalFromFields,
+	fieldsToSignal := func(fields FieldsMap) (signal.Signal, error) {
+		return signalFromFields(fields, errorsChecker)
+	}
+
+	signals := fp.FlowFilterError(fieldsToSignal,
 		errorsChecker.IsExpectedError,
 		fp.Flow(fp.FnR2RE(enrichSignal), consume))
 

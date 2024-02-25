@@ -74,7 +74,7 @@ func execFilter(ctx context.Context, cfg Config) error {
 
 	getConsumer := func(filePath string) (signalutils.ClosableSignalConsumer, error) {
 		postponing := signalutils.NewPostponingConsumer(func() (signalutils.ClosableSignalConsumer, error) {
-			return signalutils.NewJsonFileWriter(filePath)
+			return signalutils.NewJsonFileWriter(filePath, cfg.Target.PrettyJsonPrint)
 		})
 		filtering := signalutils.NewFilteringSignalConsumer(postponing, filter)
 		return filtering, nil

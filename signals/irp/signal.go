@@ -6,8 +6,8 @@ type Address = [4]uint8
 type Command = [4]uint8
 
 type SignalCode struct {
-	Address Address
-	Command Command
+	Address Address `json:"address"`
+	Command Command `json:"command"`
 }
 
 type Micros = uint

@@ -11,7 +11,7 @@ import (
 	"irptools/utils/fs"
 )
 
-func NewJsonFileWriter(filePath string) (*JsonFileWriter, error) {
+func NewJsonFileWriter(filePath string, prettyJson bool) (*JsonFileWriter, error) {
 	filePath, err := filepath.Abs(filePath)
 	if err != nil {
 		return nil, errs.Wrap(err)
@@ -36,9 +36,14 @@ func NewJsonFileWriter(filePath string) (*JsonFileWriter, error) {
 		return nil, errs.Wrap(err)
 	}
 
+	encoder := json.NewEncoder(file)
+	if prettyJson {
+		encoder.SetIndent("", "  ")
+	}
+
 	return &JsonFileWriter{
 		file:    file,
-		encoder: json.NewEncoder(file),
+		encoder: encoder,
 	}, nil
 }
 

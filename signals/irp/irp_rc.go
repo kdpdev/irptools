@@ -1,8 +1,9 @@
 package irp
 
 const (
-	FrequencyRc5 = 36000
-	FrequencyRc6 = 36000
+	FrequencyRc5  = 36000
+	FrequencyRc5x = 36000
+	FrequencyRc6  = 36000
 )
 
 func NewIrpRc5(protocol string) Irp {
@@ -11,6 +12,10 @@ func NewIrpRc5(protocol string) Irp {
 		frequency: FrequencyRc5,
 		decode:    DecodeRc5,
 	}
+}
+
+func NewIrpRc5x(protocol string) Irp {
+	return NewIrpUnsupported(protocol, FrequencyRc5x)
 }
 
 func NewIrpRc6(protocol string) Irp {

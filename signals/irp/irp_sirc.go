@@ -3,6 +3,7 @@ package irp
 const (
 	FrequencySirc12 = 40000
 	FrequencySirc15 = 40000
+	FrequencySirc20 = 40000
 )
 
 func NewIrpSirc12(protocol string) Irp {
@@ -19,6 +20,10 @@ func NewIrpSirc15(protocol string) Irp {
 		frequency: FrequencySirc15,
 		decode:    DecodeSirc15,
 	}
+}
+
+func NewIrpSirc20(protocol string) Irp {
+	return NewIrpUnsupported(protocol, FrequencySirc20)
 }
 
 func DecodeSirc12(code SignalCode) (SignalData, error) {

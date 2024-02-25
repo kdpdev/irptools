@@ -103,7 +103,7 @@ func parseSource(ctx context.Context, sourceCfg SourceConfig, targetCfg TargetCo
 	}
 
 	consumers, err := newSignalConsumersFactory(sourceCfg, targetCfg, func(filePath string) (signalutils.ClosableSignalConsumer, error) {
-		return signalutils.NewJsonFileWriter(filePath)
+		return signalutils.NewJsonFileWriter(filePath, targetCfg.PrettyJsonPrint)
 	})
 	if err != nil {
 		return 0, errs.Wrap(err)

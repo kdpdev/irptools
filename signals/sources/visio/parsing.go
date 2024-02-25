@@ -23,10 +23,7 @@ func ParseCsvStream(
 
 	count := 0
 	err := csv.ParseCsvStream(stream, csvMapping, func(signal signal.Signal) error {
-
-		signal.Protocol = "raw"
 		signal.Source = cfg.source
-
 		err := consumer.Consume(signal)
 		if err != nil {
 			return errs.Wrap(err)

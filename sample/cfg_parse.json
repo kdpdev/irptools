@@ -5,8 +5,9 @@
       "cleanupIfExists": true,
       "withoutCreationTime": true
     },
-    "keepSourceField": false,
-    "withStat": true
+    "withStat": true,
+    "prettyJsonPrint": false,
+    "keepSourceField": false
   },
 
   "sources": {
@@ -21,8 +22,7 @@
       "type": "fz",
       "path": "./data/fz",
       "options": {
-        "ignoreAllUnsupportedProtocolError": true,
-        "ignoreSpecificUnsupportedProtocolError": ["rc5x", "rca", "sirc20"]
+        "ignoreAllUnsupportedProtocolError": true
       }
     }
   }

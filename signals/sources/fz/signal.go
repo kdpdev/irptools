@@ -10,15 +10,17 @@ import (
 	"irptools/utils/errs"
 )
 
-func signalFromFields(fields FieldsMap) (signal.Signal, error) {
+func signalFromFields(fields FieldsMap, checker *ErrorChecker) (signal.Signal, error) {
 	s := signal.Signal{}
-	err := processField(fields, signalFieldType, func(value string) error {
+	d := decoder{checker: checker}
+
+	err := d.processField(fields, signalFieldType, func(value string) error {
 		decodeSignal, ok := signalDecoders[value]
 		if !ok {
 			return errs.Wrap(NewUnexpectedFieldValueError(signalFieldType, value))
 		}
 		var err error
-		s, err = decodeSignal(fields)
+		s, err = decodeSignal(&d, fields)
 		return errs.Wrap(err)
 	})
 
@@ -36,61 +38,112 @@ func signalFromFields(fields FieldsMap) (signal.Signal, error) {
 	return s, errs.Wrap(err)
 }
 
-type decodeSignalFn func(fields FieldsMap) (signal.Signal, error)
+type decodeSignalFn func(d *decoder, fields FieldsMap) (signal.Signal, error)
 
 var signalDecoders = map[string]decodeSignalFn{
-	"":       decodeFromUnknownFields,
-	"parsed": decodeFromParsedFields,
-	"raw":    decodeFromRawFields,
+	"":       func(d *decoder, fields FieldsMap) (signal.Signal, error) { return d.decodeFromUnknownFields(fields) },
+	"parsed": func(d *decoder, fields FieldsMap) (signal.Signal, error) { return d.decodeFromParsedFields(fields) },
+	"raw":    func(d *decoder, fields FieldsMap) (signal.Signal, error) { return d.decodeFromRawFields(fields) },
 }
 
-func decodeFromUnknownFields(fields FieldsMap) (signal.Signal, error) {
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type checkingIrp struct {
+	checker *ErrorChecker
+	origin  irp.Irp
+}
+
+func (this checkingIrp) Protocol() string {
+	return this.origin.Protocol()
+}
+
+func (this checkingIrp) Frequency() irp.Frequency {
+	return this.origin.Frequency()
+}
+
+func (this checkingIrp) Decode(code irp.SignalCode) (irp.SignalData, error) {
+	data, err := this.origin.Decode(code)
+	if err == nil {
+		return data, nil
+	}
+
+	if this.checker.IsExpectedError(err) {
+		return nil, nil
+	}
+
+	return nil, errs.Wrap(err)
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type decoder struct {
+	checker *ErrorChecker
+}
+
+func (this *decoder) getIrp(protocol string) (irp.Irp, error) {
+	originIrp, err := irp.GetIrp(protocol)
+	if err == nil {
+		return checkingIrp{checker: this.checker, origin: originIrp}, nil
+	}
+	if this.checker.IsExpectedError(err) {
+		return checkingIrp{checker: this.checker, origin: irp.NewIrpUnsupported(protocol, 0)}, nil
+	}
+	return nil, errs.Wrap(err)
+}
+
+func (this *decoder) decodeFromUnknownFields(fields FieldsMap) (signal.Signal, error) {
 	return signal.Signal{}, errs.Wrap(NewMissedFieldError(signalFieldType))
 }
 
-func decodeFromParsedFields(fields FieldsMap) (signal.Signal, error) {
-	s, err := decodeCommonFields(fields)
-	if err != nil {
-		return s, errs.Wrap(err)
-	}
+func (this *decoder) decodeFromParsedFields(fields FieldsMap) (signal.Signal, error) {
+	s := signal.Signal{}
+	s.Function = fields[signalFieldName]
 
-	var code irp.SignalCode
-	err = processField(fields, signalFieldAddress, func(value string) error {
-		code.Address, err = irp.ParseHex32(value)
+	err := this.processField(fields, signalFieldAddress, func(value string) error {
+		var err error
+		s.Code.Address, err = irp.ParseHex32(value)
 		return errs.Wrap(err)
 	})
 	if err != nil {
 		return s, err
 	}
 
-	err = processField(fields, signalFieldCommand, func(value string) error {
-		code.Command, err = irp.ParseHex32(value)
+	err = this.processField(fields, signalFieldCommand, func(value string) error {
+		s.Code.Command, err = irp.ParseHex32(value)
 		return errs.Wrap(err)
 	})
 	if err != nil {
 		return s, err
 	}
 
-	err = processField(fields, signalFieldProtocol, func(protocol string) error {
-		irpDecoder, err := irp.GetIrp(protocol)
-		if err == nil {
-			s.Data, err = irpDecoder.Decode(code)
+	err = this.processField(fields, signalFieldProtocol, func(protocol string) error {
+		s.Protocol = protocol
+		irp, err := this.getIrp(protocol)
+		if err != nil {
+			return errs.Wrap(err)
 		}
+		s.Frequency = irp.Frequency()
+		s.Data, err = irp.Decode(s.Code)
 		return errs.Wrap(err)
 	})
 
 	return s, err
 }
 
-func decodeFromRawFields(fields FieldsMap) (signal.Signal, error) {
-	s, err := decodeCommonFields(fields)
-	if err != nil {
-		return s, errs.Wrap(err)
-	}
+func (this *decoder) decodeFromRawFields(fields FieldsMap) (signal.Signal, error) {
+	s := signal.Signal{}
+	s.Function = fields[signalFieldName]
 
-	s.Protocol = "raw"
+	err := this.processField(fields, signalFieldFrequency, func(data string) error {
+		freq, err := irp.ParseFrequency(data)
+		if err != nil {
+			return errs.Wrap(err)
+		}
+		s.Frequency = freq
+		return nil
+	})
 
-	err = processField(fields, signalFieldData, func(data string) error {
+	err = this.processField(fields, signalFieldData, func(data string) error {
 		s.Data, err = irp.SplitToMicrosArr(data, " ")
 		return errs.Wrap(err)
 	})
@@ -98,44 +151,7 @@ func decodeFromRawFields(fields FieldsMap) (signal.Signal, error) {
 	return s, err
 }
 
-func decodeCommonFields(fields FieldsMap) (signal.Signal, error) {
-	freq, err := getFrequency(fields)
-	if err != nil {
-		return signal.Signal{}, errs.Wrap(err)
-	}
-
-	s := signal.Signal{}
-	s.Function = fields[signalFieldName]
-	s.Protocol = fields[signalFieldProtocol]
-	s.Device = "unknown"
-	s.Frequency = freq
-
-	return s, nil
-}
-
-func getFrequency(fields FieldsMap) (irp.Frequency, error) {
-	freqStr, ok := fields[signalFieldFrequency]
-	if ok {
-		freq, err := irp.ParseFrequency(freqStr)
-		if err != nil {
-			return 0, errs.Wrap(NewFieldError(signalFieldFrequency, freqStr, err))
-		}
-		return freq, nil
-	}
-
-	freq := irp.Frequency(0)
-	err := processField(fields, signalFieldProtocol, func(protocol string) error {
-		irpFreq, err := irp.GetIrp(protocol)
-		if err == nil {
-			freq = irpFreq.Frequency()
-		}
-		return errs.Wrap(err)
-	})
-
-	return freq, err
-}
-
-func processField(fields FieldsMap, field string, exec func(value string) error) error {
+func (this *decoder) processField(fields FieldsMap, field string, exec func(value string) error) error {
 	value, ok := fields[field]
 	if !ok {
 		return errs.Wrap(NewMissedFieldError(field))

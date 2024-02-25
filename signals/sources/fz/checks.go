@@ -42,13 +42,11 @@ func (this *ErrorChecker) IsExpectedError(err error) bool {
 	return false
 }
 
-func (this *ErrorChecker) initCheckers() {
-	this.checkers = []fp.FnPred[error]{
-		this.isExpectedUnsupportedProtocolError,
-	}
-}
-
 func (this *ErrorChecker) isExpectedUnsupportedProtocolError(err error) bool {
+	if err == nil {
+		return false
+	}
+
 	upe := &irp.UnsupportedProtocolError{}
 	if !errors.As(err, &upe) {
 		return false
@@ -63,4 +61,10 @@ func (this *ErrorChecker) isExpectedUnsupportedProtocolError(err error) bool {
 	}
 
 	return false
+}
+
+func (this *ErrorChecker) initCheckers() {
+	this.checkers = []fp.FnPred[error]{
+		this.isExpectedUnsupportedProtocolError,
+	}
 }
