@@ -54,18 +54,18 @@ type checkingIrp struct {
 	protocol string
 }
 
-func (this checkingIrp) Protocol() string {
+func (this *checkingIrp) Protocol() string {
 	if this.protocol != "" {
 		return this.protocol
 	}
 	return this.origin.Protocol()
 }
 
-func (this checkingIrp) Frequency() irp.Frequency {
+func (this *checkingIrp) Frequency() irp.Frequency {
 	return this.origin.Frequency()
 }
 
-func (this checkingIrp) Decode(code irp.SignalCode) (irp.SignalData, error) {
+func (this *checkingIrp) Decode(code irp.SignalCode) (irp.SignalData, error) {
 	data, err := this.origin.Decode(code)
 	if err == nil {
 		return data, nil
@@ -87,14 +87,14 @@ type decoder struct {
 func (this *decoder) getIrp(protocol string) (irp.Irp, error) {
 	originIrp, err := irp.GetIrp(strings.ToLower(protocol))
 	if err == nil {
-		return checkingIrp{
+		return &checkingIrp{
 			checker:  this.checker,
 			origin:   originIrp,
 			protocol: protocol,
 		}, nil
 	}
 	if this.checker.IsExpectedError(err) {
-		return checkingIrp{
+		return &checkingIrp{
 			checker:  this.checker,
 			origin:   irp.NewIrpUnsupported(protocol, 0),
 			protocol: protocol,

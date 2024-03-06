@@ -68,7 +68,7 @@ func execFilter(ctx context.Context, cfg Config) error {
 
 	filter := func(s signal.Signal) (bool, error) {
 		sPtr = &s
-		res := jsonPred.Is(sObj)
+		res := jsonPred.Is(&sObj)
 		return res, nil
 	}
 

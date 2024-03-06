@@ -86,15 +86,6 @@ func storeData(filePath string, data interface{}) error {
 	return nil
 }
 
-func addSignalToStatItem(item *Item, s signal.Signal) {
-	item.IncInt("Signals", 1)
-	item.AddStr("Brands", s.Brand)
-	item.AddStr("Devices", s.Device)
-	item.AddStr("Functions", s.Function)
-	item.AddStr("Protocols", s.Protocol)
-	item.AddStr("Frequencies", strconv.Itoa(int(s.Frequency)))
-}
-
 type statCollector struct {
 	rootStat *Item
 	stat     Item

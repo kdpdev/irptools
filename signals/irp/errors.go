@@ -29,6 +29,6 @@ type UnsupportedProtocolError struct {
 	Protocol string
 }
 
-func (this UnsupportedProtocolError) Error() string {
+func (this *UnsupportedProtocolError) Error() string {
 	return fmt.Sprintf("%s: %s", this.Head(), this.Protocol)
 }

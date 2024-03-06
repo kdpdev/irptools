@@ -51,7 +51,7 @@ type FieldError struct {
 	Value string
 }
 
-func (this FieldError) Error() string {
+func (this *FieldError) Error() string {
 	return fmt.Sprintf("%s: field='%s', value = '%s'", this.Head(), this.Field, this.Value)
 }
 
@@ -75,7 +75,7 @@ type BadLineError struct {
 	Details string
 }
 
-func (this BadLineError) Error() string {
+func (this *BadLineError) Error() string {
 	return fmt.Sprintf("%s: line='%s', details:'%s'", this.Head(), this.Line, this.Details)
 }
 

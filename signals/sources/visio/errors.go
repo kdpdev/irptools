@@ -33,7 +33,7 @@ type FieldError struct {
 	Value string
 }
 
-func (this FieldError) Error() string {
+func (this *FieldError) Error() string {
 	return fmt.Sprintf("%s: field='%s', value = '%s'", this.Head(), this.Field, this.Value)
 }
 

@@ -50,7 +50,7 @@ type MappedObject struct {
 	fields map[string]func() (any, error)
 }
 
-func (this MappedObject) Field(name string) (any, error) {
+func (this *MappedObject) Field(name string) (any, error) {
 	field, ok := this.fields[name]
 	if !ok {
 		return nil, ErrUnknownField
@@ -61,13 +61,13 @@ func (this MappedObject) Field(name string) (any, error) {
 ///////////////////////////////////////////////////////////////////
 
 func DefaultLogic() Logic {
-	return defaultLogic{}
+	return &defaultLogic{}
 }
 
 type defaultLogic struct {
 }
 
-func (this defaultLogic) Eq(lhs, rhs any) bool {
+func (this *defaultLogic) Eq(lhs, rhs any) bool {
 	if lhs == nil || rhs == nil {
 		return lhs == rhs
 	}
@@ -321,29 +321,29 @@ func prettyPrintedKeyValue(key string, value any) string {
 
 ///////////////////////////////////////////////////////////////////
 
-func newPredConstant(res bool) predConstant {
-	return predConstant{res: res}
+func newPredConstant(res bool) Predicate {
+	return &predConstant{res: res}
 }
 
 type predConstant struct {
 	res bool
 }
 
-func (this predConstant) Is(obj Object) bool {
+func (this *predConstant) Is(obj Object) bool {
 	return this.res
 }
 
 ///////////////////////////////////////////////////////////////////
 
-func newPredAnd(preds ...Predicate) predAnd {
-	return predAnd{preds: preds}
+func newPredAnd(preds ...Predicate) Predicate {
+	return &predAnd{preds: preds}
 }
 
 type predAnd struct {
 	preds []Predicate
 }
 
-func (this predAnd) Is(obj Object) bool {
+func (this *predAnd) Is(obj Object) bool {
 	for _, p := range this.preds {
 		if !p.Is(obj) {
 			return false
@@ -354,15 +354,15 @@ func (this predAnd) Is(obj Object) bool {
 
 ///////////////////////////////////////////////////////////////////
 
-func newPredOr(preds ...Predicate) predOr {
-	return predOr{preds: preds}
+func newPredOr(preds ...Predicate) Predicate {
+	return &predOr{preds: preds}
 }
 
 type predOr struct {
 	preds []Predicate
 }
 
-func (this predOr) Is(obj Object) bool {
+func (this *predOr) Is(obj Object) bool {
 	for _, p := range this.preds {
 		if p.Is(obj) {
 			return true
@@ -373,22 +373,22 @@ func (this predOr) Is(obj Object) bool {
 
 ///////////////////////////////////////////////////////////////////
 
-func newPredNot(pred Predicate) predNot {
-	return predNot{pred: pred}
+func newPredNot(pred Predicate) Predicate {
+	return &predNot{pred: pred}
 }
 
 type predNot struct {
 	pred Predicate
 }
 
-func (this predNot) Is(obj Object) bool {
+func (this *predNot) Is(obj Object) bool {
 	return !this.pred.Is(obj)
 }
 
 ///////////////////////////////////////////////////////////////////
 
-func newPredIn(l Logic, field string, values ...any) predIn {
-	return predIn{
+func newPredIn(l Logic, field string, values ...any) Predicate {
+	return &predIn{
 		logic:  l,
 		field:  field,
 		values: values,
@@ -401,7 +401,7 @@ type predIn struct {
 	values []any
 }
 
-func (this predIn) Is(obj Object) bool {
+func (this *predIn) Is(obj Object) bool {
 	v, err := obj.Field(this.field)
 	if err != nil {
 		return false
@@ -418,8 +418,8 @@ func (this predIn) Is(obj Object) bool {
 
 ///////////////////////////////////////////////////////////////////
 
-func newPredEq(l Logic, field string, value any) predEq {
-	return predEq{
+func newPredEq(l Logic, field string, value any) Predicate {
+	return &predEq{
 		logic: l,
 		field: field,
 		value: value,
@@ -432,7 +432,7 @@ type predEq struct {
 	value any
 }
 
-func (this predEq) Is(obj Object) bool {
+func (this *predEq) Is(obj Object) bool {
 	v, err := obj.Field(this.field)
 	if err != nil {
 		return false

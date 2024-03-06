@@ -19,7 +19,7 @@ type Signal struct {
 	Code      irp.SignalCode `json:"code"`
 }
 
-func (this Signal) Format(s fmt.State, verb rune) {
+func (this *Signal) Format(s fmt.State, verb rune) {
 	switch verb {
 	case 'v':
 		m := make(map[string]interface{})
